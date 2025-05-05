@@ -30,7 +30,7 @@ void printeazaHeader(int pozStart, int numarDeCampuri);
 int transformaStringInInt(char* numar);
 int numarCifre(int numar);
 char* baniRamasi(int baniInitiali, int baniRetrasi);
-void comandaCorecta(int argc, int numarParametrii);
+void comandaCorecta(int argc, int numarParametrii, int index);
 void afisareOptiuneNeimplementata(char* optiune);
 void esteContValid(char* cont);
 void esteNumeValid(char* nume, char* prenume);
@@ -54,51 +54,51 @@ void optiuneLipsa();
 int main(int argc, char *argv[]) {
     if (argc > 1) {
         if (strcmp(argv[1], "vizualizareConturi") == 0) {
-            comandaCorecta(argc, 3);
+            comandaCorecta(argc, 3, 0);
             esteAdministrator(argv[2]);
             vizualizareConturi(deschideFisierul("DateBancare.txt", 'r'));
         } else if (strcmp(argv[1], "vizualizareNumarConturi") == 0) {
-            comandaCorecta(argc, 3);
+            comandaCorecta(argc, 3, 1);
             esteAdministrator(argv[2]);
             vizualizareNumarConturi(deschideFisierul("DateBancare.txt", 'r'));
         } else if (strcmp(argv[1], "vizualizareClienti") == 0) {
-            comandaCorecta(argc, 3);
+            comandaCorecta(argc, 3, 2);
             esteAdministrator(argv[2]);
             vizualizareClienti(deschideFisierul("DateBancare.txt", 'r'));
         } else if (strcmp(argv[1], "vizualizareContClient_NumarCont") == 0) {
-            comandaCorecta(argc, 4);
+            comandaCorecta(argc, 4, 3);
             esteAdministrator(argv[2]);
             esteContValid(argv[3]);
             vizualizareContClient_NumarCont(deschideFisierul("DateBancare.txt", 'r'), argv[3]);
         } else if (strcmp(argv[1], "vizualizareContClient_NumeClient") == 0) {
-            comandaCorecta(argc, 5);
+            comandaCorecta(argc, 5, 4);
             esteAdministrator(argv[2]);
             esteNumeValid(argv[3], argv[4]);
             vizualizareContClient_NumeClient(deschideFisierul("DateBancare.txt", 'r'), argv[3], argv[4]);
         } else if (strcmp(argv[1], "creareCont") == 0) {
-            comandaCorecta(argc, 6);
+            comandaCorecta(argc, 6, 5);
             esteAdministrator(argv[2]);
             esteNumeValid(argv[4], argv[5]);
             esteNumarValid(argv[3], 4);
             creareCont(deschideFisierul("DateBancare.txt", 'r'), deschideFisierul("DateBancare.txt", 'a'), argv[3], argv[4], argv[5]);
         } else if (strcmp(argv[1], "stergereCont") == 0) {
-            comandaCorecta(argc, 4);
+            comandaCorecta(argc, 4, 6);
             esteAdministrator(argv[2]);
             esteContValid(argv[3]);
             stergereCont(deschideFisierul("DateBancare.txt", 'r'), argv[3]);
         } else if (strcmp(argv[1], "vizualizareContPersonal") == 0) {
-            comandaCorecta(argc, 4);
+            comandaCorecta(argc, 4, 7);
             esteContValid(argv[2]);
             esteNumarValid(argv[3], 4);
             vizualizareContPersonal(deschideFisierul("DateBancare.txt", 'r'), argv[2], argv[3]);
         } else if (strcmp(argv[1], "adaugareBaniContPersonal") == 0) {
-            comandaCorecta(argc, 5);
+            comandaCorecta(argc, 5, 8);
             esteContValid(argv[2]);
             esteNumarValid(argv[4], -1);
             esteNumarValid(argv[3], 4);
             adaugareBaniContPersonal(deschideFisierul("DateBancare.txt", 'u'), argv[2], argv[3], argv[4]);
         } else if (strcmp(argv[1], "retragereBaniContPersonal") == 0) {
-            comandaCorecta(argc, 5);
+            comandaCorecta(argc, 5, 9);
             esteContValid(argv[2]);
             esteNumarValid(argv[4], -1);
             esteNumarValid(argv[3], 4);
@@ -236,7 +236,7 @@ int numarCifre(int numar) {
 char* baniRamasi(int baniInitiali, int baniRetrasi) {
     int baniRamasi = baniInitiali - baniRetrasi;
     if (baniRamasi < 0) {
-        printf("Fonduri insuficiente!");
+        printf("Fonduri insuficiente! Numarul maxim de bani pe care ii puteti retrage este %d", baniInitiali);
         exit(1);
     }
     int diferentaCifre = numarCifre(baniInitiali) - numarCifre(baniRamasi);
@@ -268,9 +268,22 @@ char* baniRamasi(int baniInitiali, int baniRetrasi) {
     return bani;
 }
 
-void comandaCorecta(int argc, int numarParametrii) {
+void comandaCorecta(int argc, int numarParametrii, int index) {
+    char* arr[] = {
+        "comanda trebuie sa contina: parola administratorului",
+        "comanda trebuie sa contina: parola administratorului",
+        "comanda trebuie sa contina: parola administratorului",
+        "comanda trebuie sa contina: parola administratorului, numarul (IBAN-ul) contului",
+        "comanda trebuie sa contina: parola administratorului, numele, prenumele clientului",
+        "comanda trebuie sa contina: parola administratorului, parola, numele, prenumele viitorului client",
+        "comanda trebuie sa contina: parola administratorului, numarul (IBAN-ul) contului",
+        "comanda trebuie sa contina: numarul (IBAN-ul), parola contului",
+        "comanda trebuie sa contina: numarul (IBAN-ul), parola contului, suma de bani de adaugat",
+        "comanda trebuie sa contina: numarul (IBAN-ul), parola contului, suma de bani de retras"
+    };
     if (argc != numarParametrii) {
         printf("Sintaza comenzii nu este corecta. Apelati comanda help pentru a vedea sintaxa fiecarei comenzi.\n");
+        printf("%s", arr[index]);
         exit(1);
     }
 }
@@ -365,13 +378,18 @@ void vizualizareClienti(FILE* fisier) {
 void vizualizareContClient_NumarCont(FILE* fisier, char* numarCont) {
     contBancar cont;
     printeazaHeader(0, 4);
+    int k = 0;
     while (fscanf(fisier, "%s", &cont.numarCont) == 1) {
         if (strcmp(cont.numarCont, numarCont) == 0) {
             fscanf(fisier, "%s %s %s %d", &cont.parola, &cont.nume, &cont.prenume, &cont.sold);
             printeaza(&cont, 0, 4);
+            k = 1;
             break;
         }
         mutaLaFinalDeLinie(fisier);
+    }
+    if (k == 0) {
+        printf("Nu exista un cont care sa aiba IBAN-ul: %s", numarCont);
     }
     fclose(fisier);
 }
@@ -379,10 +397,15 @@ void vizualizareContClient_NumarCont(FILE* fisier, char* numarCont) {
 void vizualizareContClient_NumeClient(FILE* fisier, char* nume, char* prenume) {
     contBancar cont;
     printeazaHeader(0, 4);
+    int k = 0;
     while (fscanf(fisier, "%s %s %s %s %d", &cont.numarCont, &cont.parola, &cont.nume, &cont.prenume, &cont.sold) == 5) {
         if ((strcmp(cont.nume, nume) == 0) && (strcmp(cont.prenume, prenume) == 0)) {
             printeaza(&cont, 0, 4);
+            k = 1;
         }
+    }
+    if (k == 0) {
+        printf("Nu exista un cont care sa aiba un client cu numele: %s si prenumele %s", nume, prenume);
     }
     fclose(fisier);
 }
@@ -411,12 +434,13 @@ void creareCont(FILE* fisier1, FILE* fisier2, char* parola, char* nume, char* pr
     fprintf(fisier2, "%s %s %s %s %d          ", cont.numarCont, cont.parola, cont.nume, cont.prenume, cont.sold);
     fclose(fisier1);
     fclose(fisier2);
+    printf("Contul dorit s-a creat cu success!");
 }
 
 void stergereCont(FILE* fisier1, char* numarCont) {
     FILE* fisier2 = deschideFisierul("DateBancareTemporare.txt", 'w');
     contBancar cont;
-    int primul = 0;
+    int primul = 0, k = 0;
     while (fscanf(fisier1, "%s %s %s %s %d", &cont.numarCont, &cont.parola, &cont.nume, &cont.prenume, &cont.sold) == 5) {
         if (strcmp(cont.numarCont, numarCont) != 0) {
             if (primul) {
@@ -427,17 +451,25 @@ void stergereCont(FILE* fisier1, char* numarCont) {
             }
             fprintf(fisier2, "%s %s %s %s %d          ", cont.numarCont, cont.parola, cont.nume, cont.prenume, cont.sold);
             mutaLaFinalDeLinie(fisier1);
+        } else {
+            k = 1;
         }
     }
     fclose(fisier1);
     fclose(fisier2);
     remove("DateBancare.txt");
     rename("DateBancareTemporare.txt", "DateBancare.txt");
+    if (k == 0) {
+        printf("Nu s-a gasit un cont care sa corespunda IBAN-ului: %s", numarCont);
+    } else {
+        printf("Contul dorit a fost sters cu success!");
+    }
 }
 
 void vizualizareContPersonal(FILE* fisier, char* numarCont, char* parola) {
     contBancar cont;
     printeazaHeader(0, 4);
+    int k = 0;
     while (fscanf(fisier, "%s", &cont.numarCont) == 1) {
         if (strcmp(cont.numarCont, numarCont) == 0) {
             fscanf(fisier, "%s", &cont.parola);
@@ -447,15 +479,20 @@ void vizualizareContPersonal(FILE* fisier, char* numarCont, char* parola) {
             } else {
                 printf("parola este gresita");
             }
+            k = 1;
             break;
         }
         mutaLaFinalDeLinie(fisier);
+    }
+    if (k == 0) {
+        printf("Nu s-a gasit un cont care sa corespunda IBAN-ului dumneavoastra");
     }
     fclose(fisier);
 }
 
 void adaugareBaniContPersonal(FILE* fisier, char* numarCont, char* parola, char* baniDepusi) {
     contBancar cont;
+    int k = 0, t = 0;
     while (fscanf(fisier, "%s", &cont.numarCont) == 1) {
         if (strcmp(cont.numarCont, numarCont) == 0) {
             fscanf(fisier, "%s", &cont.parola);
@@ -466,18 +503,26 @@ void adaugareBaniContPersonal(FILE* fisier, char* numarCont, char* parola, char*
                 cont.sold += transformaStringInInt(baniDepusi);
                 fseek(fisier, pozitie, SEEK_SET);
                 fprintf(fisier, "%d", cont.sold);
+                t = 1;
             } else {
                 printf("parola este gresita");
             }
+            k = 1;
             break;
         }
         mutaLaFinalDeLinie(fisier);
     }
     fclose(fisier);
+    if (k == 0) {
+        printf("Nu s-a gasit un cont care sa corespunda IBAN-ului dumneavoastra");
+    } else if (t == 1) {
+        printf("Suma de %s de bani a fost adaugata cu success din contul dumneavoastra", baniDepusi);
+    }
 }
 
 void retragereBaniContPersonal(FILE* fisier, char* numarCont, char* parola, char* baniRetrasi) {
     contBancar cont;
+    int k = 0, t = 0;
     while (fscanf(fisier, "%s", &cont.numarCont) == 1) {
         if (strcmp(cont.numarCont, numarCont) == 0) {
             fscanf(fisier, "%s", &cont.parola);
@@ -488,14 +533,22 @@ void retragereBaniContPersonal(FILE* fisier, char* numarCont, char* parola, char
                 char* bani = baniRamasi(cont.sold, transformaStringInInt(baniRetrasi));
                 fseek(fisier, pozitie, SEEK_SET);
                 fprintf(fisier, "%s", bani);
+                free(bani);
+                t = 1;
             } else {
                 printf("parola este gresita");
             }
+            k = 1;
             break;
         }
         mutaLaFinalDeLinie(fisier);
     }
     fclose(fisier);
+    if (k == 0) {
+        printf("Nu s-a gasit un cont care sa corespunda IBAN-ului dumneavoastra");
+    } else if (t == 1) {
+        printf("Suma de %s de bani a fost retrasa cu success din contul dumneavoastra", baniRetrasi);
+    }
 }
 
 void help() {
